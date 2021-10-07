@@ -1,0 +1,269 @@
+#!/bin/bash
+# Extract Any File Compress
+# by dwiyan
+# panthalassa.eth
+# version 0.1.1
+# Extractor and Compressor
+
+OPTION=$1;
+DATA="$2";
+
+
+function Space:Handling:Compress(){
+    DATA_SPACE=`echo ""${DATA}"" | tr -s ' ' | tr ' ' '_'`
+    mv ""${DATA}"" "$DATA_SPACE"
+    DATA=${DATA_SPACE}
+}
+
+function Extract:File(){
+
+	Detect_GZIP=`file -b "${DATA}" | grep -i "gzip" | wc -l 2> /dev/null` 
+	Detect_BZIP=`file -b "${DATA}" | grep -i "bzip2" | wc -l  2> /dev/null` 
+	Detect_ZIP=`file -b "${DATA}" | grep -i "Zip" | wc -l 2> /dev/null`
+	Detect_TARGZ=`file -b "${DATA}" | grep -i "POSIX tar" | wc -l  2> /dev/null`
+	Detect_RAR=`file -b "${DATA}" | grep -i "RAR" | wc -l  2> /dev/null`
+	Detect_XZ=`file -b "${DATA}" | grep -i "XZ" | wc -l  2> /dev/null`
+	Detect_TARBZIP=`file -b "${DATA}" | grep -i "bzip2" | wc -l  2> /dev/null`
+	Detect_TARBZIP2=`file -b "${DATA}" | grep -i "bzip2" | wc -l  2> /dev/null`
+	Detect_LZMA=`file -b "${DATA}" | grep -i "LZMA" | wc -l  2> /dev/null`
+	Detect_7ZIP=`file -b "${DATA}" | grep -i "7-zip" | wc -l  2> /dev/null`
+	Detect_TARBZ2=`file -b "${DATA}" | grep -i "bzip2" | wc -l  2> /dev/null`
+
+     if [ -f "${DATA}" ] ; then
+         case ""${DATA}"" in
+            *.tar.bz2)   
+                if [ "$Detect_TARBZIP2" == "1" ]
+				then
+					echo "EXTRACT DATA BZIP2";
+					tar xvjf "${DATA}"
+				else
+                	echo "File Did Not BZIP2";
+                fi   
+                ;;
+            *.tar.gz)  
+            	if [ "$Detect_TARGZ" == "1" ] || [ "$Detect_GZIP" == "1" ]
+				then
+					echo "EXTRACT DATA TAR ARCHIVE GNU";
+					tar xvzf "${DATA}"
+				else
+                	echo "File Did Not TAR ARCHIVE GNU";
+                fi   
+                ;; 
+            *.tar.lzma)    
+            	if [ "$Detect_LZMA" == "1" ]
+				then
+					echo "EXTRACT DATA TAR LZMA";
+					tar xvf "${DATA}";  
+				else
+                	echo "File Did Not LZMA";
+                fi                  
+                ;; 
+            *.lzma)    
+            	if [ "$Detect_LZMA" == "1" ]
+				then
+					echo "EXTRACT DATA LZMA";
+					lzma --decompress --force -v "${DATA}";  
+				else
+                	echo "File Did Not LZMA";
+                fi                  
+                ;;
+          
+            *.bz2) 
+            	if [ "$Detect_TARBZIP2" == "1" ]
+				then
+					echo "EXTRACT DATA BUNZIP2";
+					bunzip2 -d -f -v "${DATA}"   
+				else
+                	echo "File Did Not BUNZIP2";
+                fi      
+                ;;
+            *.rar)
+            	if [ "$Detect_RAR" == "1" ]
+				then
+					echo "EXTRACT DATA RAR";
+					unrar v "${DATA}" 
+					unrar x "${DATA}"   
+				else
+                	echo "File Did Not RAR";
+                fi                      
+                ;;
+            *.gz)
+            	if [ "$Detect_GZIP" == "1" ]
+				then
+					echo "EXTRACT DATA GZIP";
+					gunzip --force --verbose "${DATA}" 
+				else
+                	echo "File Did Not GZIP";
+                fi 
+                ;;
+            *.tar)
+            	if [ "$Detect_TARGZ" == "1" ] || [ "$Detect_GZIP" == "1" ]
+				then
+					echo "EXTRACT DATA TAR ARCHIVE GNU";
+					 tar xvf "${DATA}"  
+				else
+                	echo "File Did Not TAR ARCHIVE GNU";
+                fi                      
+                ;;
+            *.tbz2)
+            	if [ "$Detect_TARBZ2" == "1" ] 
+				then
+					echo "EXTRACT DATA TAR ARCHIVE GNU BZIP2";
+					tar xvjf "${DATA}"  
+				else
+                	echo "File Did Not TAR ARCHIVE GNU BZIP2";
+                fi                      
+                ;;
+            *.tgz)
+            	if [ "$Detect_TARGZ" == "1" ] || [ "$Detect_GZIP" == "1" ]
+				then
+					echo "EXTRACT DATA TAR ARCHIVE GNU GZIP";
+					tar xvzf "${DATA}"  
+				else
+                	echo "File Did Not TAR ARCHIVE GNU GZIP";
+                fi                     
+                ;;
+            *.zip)
+            	if [ "$Detect_ZIP" == "1" ] 
+				then
+					echo "EXTRACT DATA ZIPPER ";
+					unzip -v "${DATA}"
+					unzip "${DATA}"  
+				else
+                	echo "File Did Not ZIPPER";
+                fi    
+                ;;
+            *.Z)
+            	if [ "$Detect_TARGZ" == "1" ] || [ "$Detect_GZIP" == "1" ]
+				then
+					echo "EXTRACT DATA UNCOMPRESS GZIP";
+					uncompress "${DATA}" 
+				else
+                	echo "File Did Not UNCOMPRESS GZIP";
+                fi   
+                ;;
+            *.7z)
+            	if [ "$Detect_7ZIP" == "1" ]
+				then
+					echo "EXTRACT DATA 7-ZIP";
+					7z x "${DATA}"
+				else
+                	echo "File Did Not 7-ZIP";
+                fi          
+                ;;
+            *)  
+                echo "'"${DATA}"' cannot be extracted" 
+                ;;
+        esac
+    else
+        echo "'"${DATA}"' is not a valid file"
+    fi
+}
+
+function Compress:File(){
+	echo "##############################"
+	echo "1. ${DATA}.tar.bz2"
+	echo "2. ${DATA}.tar.gz"
+	echo "3. ${DATA}.lzma"
+	echo "4. ${DATA}.tar.lzma"
+	echo "5. ${DATA}.bz2"
+	echo "6. ${DATA}.rar"
+	echo "7. ${DATA}.gz"
+	echo "8. ${DATA}.tar"
+	echo "9. ${DATA}.tbz2"
+	echo "10. ${DATA}.tgz"
+	echo "11. ${DATA}.zip"
+	echo "12. ${DATA}.Z"
+	echo "13. ${DATA}.7z"
+	echo "##############################"
+	read -p "Choose number compression method : " compress
+
+	case $compress in
+		1 )
+			echo "compress file ${DATA} using .tar.bz2"
+			tar cvfj ${DATA}.tar.bz2 ${DATA}
+		;;
+		2 )
+		    echo "compress file ${DATA} using .tar.gz"
+		    tar cvfz "${DATA}".tar.gz "${DATA}"
+		;;
+		3 )
+			echo "compress file ${DATA} using .lzma"
+			lzma --compress -v "${DATA}"
+		;;
+		4 )
+			echo "compress file ${DATA} using tar.lzma"
+			tar cvf - ${DATA} | lzma -c -9 > ${DATA}.tar.lzma
+		;;
+		5 )
+			echo "compress file ${DATA} using .bz2"
+			bzip2 -z -v ${DATA}
+		;;
+		6 )
+			echo "compress file ${DATA} using .rar"
+			rar a -r ${DATA}
+		;;
+		7 )
+			echo "compress file ${DATA} using .gzip"
+			gzip --verbose ${DATA}
+		;;
+		8 )
+			echo "compress file ${DATA} using .tar"
+			tar cvf ${DATA}.tar ${DATA}
+		;;
+		9 )
+			echo "compress file ${DATA} using .tbz"
+			tar cvfj ${DATA}.tbz ${DATA}
+		;;
+		10 )
+		    echo "compress file ${DATA} using .tgz"
+		    tar cvfz ${DATA}.tgz ${DATA}
+		;;
+		11 )
+		    echo "compress file ${DATA} using .zip"
+		    zip -9r ${DATA} ${DATA}
+		;;
+		12 )
+		    echo "compress file ${DATA} using tar.Z"
+		    tar cvfz ${DATA}.tar.Z ${DATA}
+		;;
+		13 )
+			echo "compress file ${DATA} using 7z"
+		    7z a ${DATA}.7z ${DATA}
+		;;
+		* )
+		;;
+	esac
+}
+
+
+if [ -z ${DATA} ]
+then
+	echo "INSTRUCTION !!";
+	echo ""
+	echo "#################################################################################"
+        echo "# Command for extract  : wjt-compress [extract|Extract|e|-e] [Directory|File]   #"
+	echo "# Command for compress : wjt-compress [compress|Compress|c|-c] [Directory|File] #"
+	echo "#################################################################################"
+	echo ""
+	echo "example :"
+	echo "wjt-compress -e data.tar.gz || This command for extract file"
+	echo "wjt-compress -c data || This command for compress directory"
+	echo ""
+else
+	case $OPTION in
+	extract | Extract | e | -e )
+	    Extract:File;
+	    ;;
+    	compress | Compress | c | -c )
+            Space:Handling:Compress;
+    	    Compress:File;
+    	    ;;
+    	*)
+		echo "Command Invalid!!!"
+ 		;;
+	esac
+fi
+
+
+
